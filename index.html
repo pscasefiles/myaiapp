@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OT Charges & Ayushman Package Code</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .badge-gov { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .badge-tertiary { background-color: #ede9fe; color: #5b21b6; }
+    .badge-secondary { background-color: #e0f2fe; color: #0369a1; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        
+        <!-- App Title -->
+        <div class="flex items-center space-x-3">
+          <div class="bg-blue-600 text-white p-2 rounded-lg shadow">
+            <i data-lucide="layers" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h1 class="text-lg md:text-xl font-bold tracking-tight">OT Charges & Ayushman Code</h1>
+            <p class="text-xs text-slate-400">Department of Paediatric Surgery, AIIMS Jodhpur</p>
+          </div>
+        </div>
+
+        <!-- Master Independent Toggle -->
+        <div class="flex items-center bg-slate-800 p-1.5 rounded-xl border border-slate-700 shadow-inner">
+          <button 
+            id="tab-hosp" 
+            onclick="setMode('hospital')"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs md:text-sm font-bold transition shadow-sm bg-emerald-600 text-white"
+          >
+            <i data-lucide="receipt" class="w-4 h-4"></i>
+            <span>OT charges</span>
+          </button>
+          
+          <button 
+            id="tab-ayush" 
+            onclick="setMode('ayushman')"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs md:text-sm font-bold transition text-slate-300 hover:text-white"
+          >
+            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+            <span>Ayushman code</span>
+          </button>
+        </div>
+
+        <!-- Action / Worksheet -->
+        <div class="flex items-center gap-2">
+          <button onclick="toggleDrawer()" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition border border-slate-600">
+            <i data-lucide="shopping-cart" class="w-4 h-4 text-amber-300"></i>
+            <span id="drawer-btn-label">Active Bill / Sheet</span>
+            <span id="cart-counter" class="bg-amber-400 text-slate-900 px-1.5 py-0.2 rounded-full font-black text-[11px]">0</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Active Mode Explanation Banner -->
+    <div id="mode-explainer" class="bg-emerald-800 text-emerald-100 text-xs py-1.5 px-4 text-center font-medium border-t border-emerald-700">
+      Viewing: <strong>Hospital User Charges</strong>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 py-5 flex-1 w-full">
+
+    <!-- ======================================================= -->
+    <!-- VIEW 1: HOSPITAL USER CHARGES                           -->
+    <!-- ======================================================= -->
+    <section id="section-hospital" class="space-y-4">
+      
+      <!-- Filter Bar -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+          
+          <!-- Search input -->
+          <div class="md:col-span-6 relative">
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+              Search Any Surgical Procedure or Investigation
+            </label>
+            <div class="relative">
+              <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
+              <input 
+                type="text" 
+                id="hosp-search" 
+                oninput="filterHospital()"
+                placeholder="e.g. TAPP, TEP, Hernioplasty, Appendicectomy, PSARP, TEF, Shunt, Biopsy..." 
+                class="w-full pl-10 pr-9 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white"
+              />
+              <button onclick="clearHospSearch()" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Department Dropdown (All departments) -->
+          <div class="md:col-span-4">
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+              Filter by Department
+            </label>
+            <select id="hosp-dept-select" onchange="filterHospital()" class="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              <option value="all">All Departments (Hospital Schedule)</option>
+              <option value="General Surgery">General Surgery</option>
+              <option value="Pediatric Surgery">Pediatric Surgery</option>
+              <option value="Burns and Plastic Surgery">Burns and Plastic Surgery</option>
+              <option value="Urology">Urology</option>
+              <option value="Surgical Oncology">Surgical Oncology</option>
+              <option value="Surgical Gastroenterology">Surgical Gastroenterology</option>
+              <option value="Neurosurgery">Neurosurgery</option>
+              <option value="E.N.T.-Otorhinolaryngology">E.N.T.-Otorhinolaryngology</option>
+              <option value="Obstetrics & Gynecology">Obstetrics & Gynecology</option>
+              <option value="Ophthalmology">Ophthalmology</option>
+              <option value="Physical Medicine & Rehabilitation">Physical Medicine & Rehabilitation</option>
+              <option value="Orthopedics (Amputations)">Orthopedics (Amputations)</option>
+              <option value="Radiotherapy">Radiotherapy / Oncology</option>
+              <option value="Diagnostic & Interventional Radiology">Diagnostic & Interventional Radiology</option>
+              <option value="Pathology & Lab Medicine">Pathology & Lab Medicine</option>
+              <option value="Biochemistry">Biochemistry</option>
+              <option value="Microbiology">Microbiology</option>
+            </select>
+          </div>
+
+          <!-- Sort Price -->
+          <div class="md:col-span-2">
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sort Charge</label>
+            <select id="hosp-sort" onchange="filterHospital()" class="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              <option value="sNo">Default (S.No)</option>
+              <option value="low-high">Fee: Low to High</option>
+              <option value="high-low">Fee: High to Low</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Quick Tags for common surgeries -->
+        <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-1.5 text-xs">
+          <span class="text-slate-400 font-semibold mr-1">Direct Jump:</span>
+          <button onclick="setHospKeyword('Laparoscopic (Tapp/Tep)')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 rounded border border-slate-200 transition">TAPP / TEP Hernia</button>
+          <button onclick="setHospKeyword('Hernioplasty')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 rounded border border-slate-200 transition">Hernioplasty (Open/Lap)</button>
+          <button onclick="setHospKeyword('Appendicectomy')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 rounded border border-slate-200 transition">Appendicectomy</button>
+          <button onclick="setHospKeyword('Cholecystectomy')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 rounded border border-slate-200 transition">Cholecystectomy</button>
+          <button onclick="setHospKeyword('TEF')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 rounded border border-slate-200 transition">TEF / Esophageal Atresia</button>
+          <button onclick="setHospKeyword('PSARP')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 rounded border border-slate-200 transition">PSARP</button>
+          <button onclick="setHospKeyword('Hypospadias')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 rounded border border-slate-200 transition">Hypospadias</button>
+          <button onclick="setHospKeyword('Orchidopexy')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 rounded border border-slate-200 transition">Orchidopexy</button>
+          <button onclick="setHospKeyword('Whipples')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 rounded border border-slate-200 transition">Whipple's</button>
+          <button onclick="setHospKeyword('Pyeloplasty')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 rounded border border-slate-200 transition">Pyeloplasty</button>
+          <button onclick="setHospKeyword('Ladd')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 rounded border border-slate-200 transition">Ladd's Procedure</button>
+        </div>
+      </div>
+
+      <!-- Count bar -->
+      <div class="flex items-center justify-between text-xs text-slate-500 px-1">
+        <span>Found <strong id="hosp-count" class="text-slate-900 text-sm">0</strong> procedures in Hospital Schedule</span>
+        <span class="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded font-mono font-bold">PDF_2_ACTUAL_CHARGES</span>
+      </div>
+
+      <!-- Hospital Cards Container -->
+      <div id="hosp-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- VIEW 2: AYUSHMAN BHARAT REIMBURSEMENT CLAIMS            -->
+    <!-- ======================================================= -->
+    <section id="section-ayushman" class="hidden space-y-4">
+      
+      <!-- Ayushman Filter Bar -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+          
+          <div class="md:col-span-6 relative">
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+              Search Ayushman Package Code, Diagnosis or Criteria
+            </label>
+            <div class="relative">
+              <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
+              <input 
+                type="text" 
+                id="ayush-search" 
+                oninput="filterAyushman()"
+                placeholder="e.g. 2841-SS031A, TEF, Kasai, Pyeloplasty, Orchiopexy, Chemo Port, 2846-SU071A..." 
+                class="w-full pl-10 pr-9 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white"
+              />
+              <button onclick="clearAyushSearch()" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="md:col-span-4">
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+              Filter by Ayushman Specialty
+            </label>
+            <select id="ayush-dept-select" onchange="filterAyushman()" class="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <option value="all">All Specialties (Ayushman Master)</option>
+              <option value="Paediatric surgery">Paediatric surgery</option>
+              <option value="Urology">Urology</option>
+              <option value="General Surgery">General Surgery</option>
+              <option value="Plastic & reconstructive Surgery">Plastic & Reconstructive Surgery</option>
+              <option value="Burns Management">Burns Management</option>
+              <option value="Surgical Oncology">Surgical Oncology</option>
+              <option value="Neurosurgery">Neurosurgery</option>
+              <option value="Otorhinolaryngology (ENT)">Otorhinolaryngology (ENT)</option>
+              <option value="Pediatric CTVS">Pediatric CTVS</option>
+              <option value="Neo-natal care">Neo-natal Care</option>
+              <option value="Orthopaedics">Orthopaedics</option>
+              <option value="Interventional Radiology">Interventional Radiology</option>
+            </select>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sort Reimbursement</label>
+            <select id="ayush-sort" onchange="filterAyushman()" class="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <option value="none">Default Order</option>
+              <option value="low-high">Amount: Low to High</option>
+              <option value="high-low">Amount: High to Low</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-1.5 text-xs">
+          <span class="text-slate-400 font-semibold mr-1">Quick Filters:</span>
+          <button onclick="toggleGovtReservedOnly()" id="gov-filter-btn" class="px-2.5 py-0.5 bg-amber-50 text-amber-800 border border-amber-300 rounded font-bold hover:bg-amber-100 transition">
+            Govt. Reserved Only
+          </button>
+          <button onclick="toggleTertiaryOnly()" id="tert-filter-btn" class="px-2.5 py-0.5 bg-purple-50 text-purple-800 border border-purple-200 rounded font-semibold hover:bg-purple-100 transition">
+            Tertiary Packages
+          </button>
+          <button onclick="setAyushKeyword('Port')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded border border-slate-200">Chemo Port</button>
+          <button onclick="setAyushKeyword('Kasai')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded border border-slate-200">Kasai (Biliary Atresia)</button>
+          <button onclick="setAyushKeyword('Meningocele')" class="px-2.5 py-0.5 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded border border-slate-200">Meningocele / Spina Bifida</button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between text-xs text-slate-500 px-1">
+        <span>Found <strong id="ayush-count" class="text-slate-900 text-sm">0</strong> Ayushman claim packages</span>
+        <span class="text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded font-mono font-bold">PDF_1_REFUND_CLAIMS</span>
+      </div>
+
+      <!-- Ayushman Cards Container -->
+      <div id="ayush-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Side-Drawer (Worksheet / Cart) -->
+  <div id="worksheet-drawer" class="fixed inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl border-l border-slate-300 transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
+    <div class="bg-slate-900 text-white p-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i data-lucide="clipboard-pen" class="w-5 h-5 text-amber-400"></i>
+        <h2 class="font-bold text-sm" id="worksheet-header">Patient Surgery Worksheet</h2>
+      </div>
+      <button onclick="toggleDrawer()" class="text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div class="p-3 bg-slate-50 border-b border-slate-200 text-xs text-slate-600 leading-relaxed">
+      You can add items from the <strong>Hospital Tariff</strong> or from the <strong>Ayushman List</strong>. They are marked distinctly below.
+    </div>
+
+    <div class="p-4 flex-1 overflow-y-auto space-y-2" id="cart-list">
+      <!-- Items -->
+    </div>
+
+    <div class="p-4 border-t border-slate-200 bg-slate-50 space-y-3">
+      <div class="flex justify-between items-center text-sm font-semibold">
+        <span class="text-slate-600">Total Computed Amount:</span>
+        <span id="cart-total-amount" class="text-xl font-black text-slate-900">₹0</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="copyWorksheet()" class="flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2.5 rounded-lg font-bold transition shadow-sm">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Summary
+        </button>
+        <button onclick="clearCart()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs py-2.5 rounded-lg font-semibold transition">
+          Clear All
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white text-xs font-bold px-4 py-2.5 rounded-lg shadow-xl transform translate-y-20 opacity-0 transition-all duration-200 z-50 flex items-center gap-2">
+    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toast-text">Copied!</span>
+  </div>
+
+  <!-- Javascript Logic -->
+  <script>
+    // =========================================================================
+    // FULL COMPREHENSIVE HOSPITAL SURGICAL & INVESTIGATION CHARGES 
+    // =========================================================================
+    const hospitalProcedures = [
+      // GENERAL SURGERY (Includes Lap TAPP/TEP, Hernias, Bowel, Gallbladder, etc.)
+      { sNo: 304, dept: "General Surgery", name: "Tracheal Stenosis Resection with Anastomosis", rate: 7000 },
+      { sNo: 306, dept: "General Surgery", name: "Superficial Parotidectomy", rate: 3000 },
+      { sNo: 307, dept: "General Surgery", name: "Thyroglossal Cyst/Sinus Excision (Sistrunk Operation)", rate: 3000 },
+      { sNo: 308, dept: "General Surgery", name: "Completion Thyroidectomy", rate: 2000 },
+      { sNo: 309, dept: "General Surgery", name: "Tracheostomy", rate: 500 },
+      { sNo: 310, dept: "General Surgery", name: "Microdochectomy", rate: 1500 },
+      { sNo: 311, dept: "General Surgery", name: "Simple Mastectomy", rate: 2000 },
+      { sNo: 312, dept: "General Surgery", name: "Reduction Mammoplasty", rate: 2500 },
+      { sNo: 313, dept: "General Surgery", name: "Breast Conserving Surgery", rate: 3000 },
+      { sNo: 314, dept: "General Surgery", name: "Modified Radical Mastectomy", rate: 3000 },
+      { sNo: 316, dept: "General Surgery", name: "Thoracotomy For General Surgery Procedure", rate: 7000 },
+      { sNo: 317, dept: "General Surgery", name: "Clamshell Thoracotomy", rate: 7000 },
+      { sNo: 318, dept: "General Surgery", name: "Emergency Thoracotomy For Trauma", rate: 8000 },
+      { sNo: 319, dept: "General Surgery", name: "Thoracoscopic Decortication", rate: 7000 },
+      { sNo: 320, dept: "General Surgery", name: "Thoracoscopic Excision Of Bronchogenic Cyst", rate: 7000 },
+      { sNo: 322, dept: "General Surgery", name: "Thymectomy", rate: 7000 },
+      { sNo: 326, dept: "General Surgery", name: "Thoracoscopic Lobectomy", rate: 7000 },
+      { sNo: 330, dept: "General Surgery", name: "Cholecystectomy With CBD Exploration", rate: 5000 },
+      { sNo: 341, dept: "General Surgery", name: "Oesophagectomy Transhiatal", rate: 15000 },
+      { sNo: 344, dept: "General Surgery", name: "Open Diaphragmatic Hernia Repair", rate: 5000 },
+      { sNo: 345, dept: "General Surgery", name: "Laparoscopic Hiatus Hernia Repair", rate: 3000 },
+      { sNo: 346, dept: "General Surgery", name: "Partial / Total Gastrectomy", rate: 7000 },
+      { sNo: 349, dept: "General Surgery", name: "Choledochal Cyst Excision", rate: 7000 },
+      { sNo: 350, dept: "General Surgery", name: "Total Pancreatectomy", rate: 10000 },
+      { sNo: 355, dept: "General Surgery", name: "Laparoscopic Fundoplication", rate: 3000 },
+      { sNo: 358, dept: "General Surgery", name: "Diagnostic Laparoscopy", rate: 3000 },
+      { sNo: 359, dept: "General Surgery", name: "Laparoscopic Diaphragmatic Hernia Repair", rate: 5000 },
+      { sNo: 360, dept: "General Surgery", name: "Hiatus Hernia Repair", rate: 3000 },
+      { sNo: 363, dept: "General Surgery", name: "Distal Pancreatectomy", rate: 6000 },
+      { sNo: 364, dept: "General Surgery", name: "Pancreatic Necrosectomy", rate: 7000 },
+      { sNo: 366, dept: "General Surgery", name: "Pyloroplasty", rate: 5000 },
+      { sNo: 368, dept: "General Surgery", name: "Pilonidal Sinus Excision", rate: 2000 },
+      { sNo: 369, dept: "General Surgery", name: "Laparoscopic Whipples Procedure (Pancreaticoduodenectomy)", rate: 10000 },
+      { sNo: 370, dept: "General Surgery", name: "Femoral Hernioplasty", rate: 3000 },
+      { sNo: 371, dept: "General Surgery", name: "Cholecystectomy With Choledochoduodenostomy", rate: 5500 },
+      { sNo: 372, dept: "General Surgery", name: "Hepaticojejunostomy", rate: 7000 },
+      { sNo: 373, dept: "General Surgery", name: "Hepatic Resection (Lobectomy/Hepatectomy)", rate: 10000 },
+      { sNo: 375, dept: "General Surgery", name: "Cystogastrostomy", rate: 3000 },
+      { sNo: 376, dept: "General Surgery", name: "Laparoscopic Cystojejunostomy", rate: 3000 },
+      { sNo: 377, dept: "General Surgery", name: "Exploratory Laparotomy", rate: 5000 },
+      { sNo: 378, dept: "General Surgery", name: "Exploratory Laparotomy With Gastrojejunostomy", rate: 6000 },
+      { sNo: 379, dept: "General Surgery", name: "Small Bowel Resection And Anastomosis", rate: 6000 },
+      { sNo: 380, dept: "General Surgery", name: "Repair Of Burst Abdomen / Laparostomy", rate: 3000 },
+      { sNo: 381, dept: "General Surgery", name: "Open Hemicolectomy", rate: 7000 },
+      { sNo: 382, dept: "General Surgery", name: "Laparoscopic Hemicolectomy", rate: 7000 },
+      { sNo: 384, dept: "General Surgery", name: "Laparoscopic Low Anterior Resection (LAR)", rate: 10000 },
+      { sNo: 386, dept: "General Surgery", name: "Abdomino-Perineal Resection (APR)", rate: 10000 },
+      { sNo: 387, dept: "General Surgery", name: "Rectal Prolapse Repair", rate: 5000 },
+      { sNo: 388, dept: "General Surgery", name: "Rectal Polyp Excision", rate: 1500 },
+      { sNo: 389, dept: "General Surgery", name: "Hepatic Hydatid Cyst Resection", rate: 5000 },
+      { sNo: 390, dept: "General Surgery", name: "Open Splenectomy", rate: 5000 },
+      { sNo: 391, dept: "General Surgery", name: "Laparoscopic Splenectomy", rate: 5000 },
+      { sNo: 392, dept: "General Surgery", name: "Retroperitoneal Tumor Resection", rate: 7000 },
+      { sNo: 393, dept: "General Surgery", name: "Inguinal Hernioplasty (Unilateral)", rate: 3000 },
+      { sNo: 394, dept: "General Surgery", name: "Inguinal Hernioplasty (Bilateral)", rate: 4500 },
+      { sNo: 395, dept: "General Surgery", name: "Rare (Spigelian/Obturator/Lumbar/Sciatic) Hernioplasty", rate: 3000 },
+      { sNo: 396, dept: "General Surgery", name: "Laparoscopic (Tapp/Tep) Hernioplasty (Unilateral)", rate: 3000 },
+      { sNo: 397, dept: "General Surgery", name: "Laparoscopic (Tapp/Tep) Hernioplasty (Bilateral)", rate: 5000 },
+      { sNo: 398, dept: "General Surgery", name: "Incisional Hernia Repair", rate: 4500 },
+      { sNo: 399, dept: "General Surgery", name: "Laparoscopic Incisional Hernia Repair", rate: 4500 },
+      { sNo: 400, dept: "General Surgery", name: "Epigastric / Umbilical Hernia Repair", rate: 1500 },
+      { sNo: 401, dept: "General Surgery", name: "Feeding Jejunostomy / Gastrostomy", rate: 1500 },
+      { sNo: 404, dept: "General Surgery", name: "Lateral Internal Sphincterotomy", rate: 2000 },
+      { sNo: 405, dept: "General Surgery", name: "Open Hemorrhoidectomy", rate: 1500 },
+      { sNo: 406, dept: "General Surgery", name: "Stapled Hemorrhoidectomy", rate: 2000 },
+      { sNo: 409, dept: "General Surgery", name: "Orchiopexy", rate: 2000 },
+      { sNo: 411, dept: "General Surgery", name: "Laparoscopic Epigastric / Umbilical Hernia Repair", rate: 2000 },
+      { sNo: 413, dept: "General Surgery", name: "Circumcision / Meatoplasty / Meatotomy", rate: 500 },
+      { sNo: 414, dept: "General Surgery", name: "Pyeloplasty", rate: 5500 },
+      { sNo: 415, dept: "General Surgery", name: "Hydrocele Repair", rate: 500 },
+      { sNo: 416, dept: "General Surgery", name: "Laparoscopic Orchiectomy", rate: 2000 },
+      { sNo: 417, dept: "General Surgery", name: "Ureteric Reimplantation", rate: 2000 },
+      { sNo: 419, dept: "General Surgery", name: "Orchiectomy", rate: 2000 },
+      { sNo: 421, dept: "General Surgery", name: "Urethroplasty / Genitoplasty", rate: 2000 },
+      { sNo: 431, dept: "General Surgery", name: "AV Fistula For Dialysis", rate: 1500 },
+      { sNo: 443, dept: "General Surgery", name: "Laparoscopic / Open Pancreatic Pseudocyst Drainage", rate: 3000 },
+      { sNo: 444, dept: "General Surgery", name: "Exploratory Lap With Small Bowel Resection & Anastomosis", rate: 5000 },
+      { sNo: 450, dept: "General Surgery", name: "Skin Grafting Under Local Anaesthesia", rate: 500 },
+      { sNo: 451, dept: "General Surgery", name: "Skin Grafting Under General Anaesthesia", rate: 1500 },
+      { sNo: 452, dept: "General Surgery", name: "Post Burn Contracture Release", rate: 1500 },
+      { sNo: 453, dept: "General Surgery", name: "Excision And Flap Cover", rate: 3000 },
+      { sNo: 468, dept: "General Surgery", name: "Whipples Procedure Open / Laparoscopic", rate: 15000 },
+      { sNo: 469, dept: "General Surgery", name: "Inguinal / Femoral Hernia Mesh Repair", rate: 2000 },
+      { sNo: 470, dept: "General Surgery", name: "Laparoscopic (Tapp/Tep) Hernia Repair", rate: 2000 },
+      { sNo: 471, dept: "General Surgery", name: "Open Incisional Hernia Repair", rate: 5000 },
+      { sNo: 474, dept: "General Surgery", name: "Open Pyeloplasty", rate: 3000 },
+      { sNo: 482, dept: "General Surgery", name: "Thoracoscopic Tracheo Esophageal Fistula (TEF) Repair", rate: 7000 },
+      { sNo: 483, dept: "General Surgery", name: "Laparoscopic Orchiopexy", rate: 2500 },
+      { sNo: 491, dept: "General Surgery", name: "Laparoscopic Pyeloplasty", rate: 5500 },
+      { sNo: 501, dept: "General Surgery", name: "Open Appendicectomy", rate: 2000 },
+      { sNo: 516, dept: "General Surgery", name: "Abdominoplasty", rate: 5500 },
+      { sNo: 517, dept: "General Surgery", name: "Total / Near Total Thyroidectomy", rate: 2000 },
+      { sNo: 523, dept: "General Surgery", name: "Tracheo Esophageal Fistula Repair", rate: 7000 },
+      { sNo: 531, dept: "General Surgery", name: "Cholecystectomy Laparoscopic / Open", rate: 2000 },
+      { sNo: 538, dept: "General Surgery", name: "Open Appendicectomy", rate: 2000 },
+      { sNo: 539, dept: "General Surgery", name: "Total Proctocolectomy", rate: 15000 },
+      { sNo: 540, dept: "General Surgery", name: "Ileostomy / Colostomy Closure", rate: 3000 },
+      { sNo: 541, dept: "General Surgery", name: "Laparoscopic Appendicectomy", rate: 2000 },
+
+      // PEDIATRIC SURGERY (PDF 2: 916 to 1028)
+      { sNo: 916, dept: "Pediatric Surgery", name: "Salivary duct orifice dilatation", rate: 1500 },
+      { sNo: 917, dept: "Pediatric Surgery", name: "Marsupialization , Ranula", rate: 2000 },
+      { sNo: 918, dept: "Pediatric Surgery", name: "Salivary gland excision", rate: 3500 },
+      { sNo: 919, dept: "Pediatric Surgery", name: "Excision of cervical masses - cystic hygroma, teratoma etc.", rate: 3500 },
+      { sNo: 920, dept: "Pediatric Surgery", name: "Ventriculo-Peritoneal Shunt", rate: 1000 },
+      { sNo: 921, dept: "Pediatric Surgery", name: "V. P. Shunt Revision / Ext. Ventricular drainage", rate: 500 },
+      { sNo: 922, dept: "Pediatric Surgery", name: "Repair of Open Spina Bifida / encephalocele", rate: 2500 },
+      { sNo: 923, dept: "Pediatric Surgery", name: "Repair of Occult spinal dysraphism", rate: 5000 },
+      { sNo: 924, dept: "Pediatric Surgery", name: "Thyroidectomy", rate: 5000 },
+      { sNo: 925, dept: "Pediatric Surgery", name: "Sternomastoid release (Torticollis)", rate: 2000 },
+      { sNo: 926, dept: "Pediatric Surgery", name: "Repair of H type TEF", rate: 5000 },
+      { sNo: 927, dept: "Pediatric Surgery", name: "Tracheostomy", rate: 2500 },
+      { sNo: 929, dept: "Pediatric Surgery", name: "Thoracotomy / Decortication", rate: 3500 },
+      { sNo: 930, dept: "Pediatric Surgery", name: "Hydatid Cyst Lung", rate: 3500 },
+      { sNo: 931, dept: "Pediatric Surgery", name: "Mediastinal Duplication / Tumour", rate: 5000 },
+      { sNo: 932, dept: "Pediatric Surgery", name: "Eventration Diaphragm", rate: 5000 },
+      { sNo: 933, dept: "Pediatric Surgery", name: "Diaphragmatic Hernia Repair", rate: 5000 },
+      { sNo: 934, dept: "Pediatric Surgery", name: "Pectus Excavatum / Chest Wall Deformities", rate: 2500 },
+      { sNo: 935, dept: "Pediatric Surgery", name: "Bronchoscopy / FB removal", rate: 2500 },
+      { sNo: 936, dept: "Pediatric Surgery", name: "Esophagoscopy / FB removal, Esophageal dilatation", rate: 2500 },
+      { sNo: 937, dept: "Pediatric Surgery", name: "VATS (Thoracoscopy)", rate: 3500 },
+      { sNo: 938, dept: "Pediatric Surgery", name: "Pulmonary Resection", rate: 5000 },
+      { sNo: 939, dept: "Pediatric Surgery", name: "Esophageal Fundoplication / Cardiomyotomy", rate: 5000 },
+      { sNo: 940, dept: "Pediatric Surgery", name: "Duodeno-Duodenostomy", rate: 10000 },
+      { sNo: 941, dept: "Pediatric Surgery", name: "Surgery for Malrotation- Ladd's Procedure", rate: 7500 },
+      { sNo: 942, dept: "Pediatric Surgery", name: "Surgery for Ileal / Jejunal Atresia", rate: 10000 },
+      { sNo: 943, dept: "Pediatric Surgery", name: "Feeding jejunostomy", rate: 2500 },
+      { sNo: 944, dept: "Pediatric Surgery", name: "Abdominal Cyst (e.g. Mesenteric) Excision", rate: 5000 },
+      { sNo: 945, dept: "Pediatric Surgery", name: "Appendectomy – open / abscess drainage", rate: 5000 },
+      { sNo: 946, dept: "Pediatric Surgery", name: "Cholecystectomy", rate: 5000 },
+      { sNo: 947, dept: "Pediatric Surgery", name: "Surgery for Choledochal Cyst", rate: 5000 },
+      { sNo: 949, dept: "Pediatric Surgery", name: "Surgery for Extrahepatic Biliary Atresia (Kasai)", rate: 10000 },
+      { sNo: 950, dept: "Pediatric Surgery", name: "Surgery for Hydatid Cyst Liver", rate: 7500 },
+      { sNo: 951, dept: "Pediatric Surgery", name: "Operation for portal hypertension", rate: 10000 },
+      { sNo: 952, dept: "Pediatric Surgery", name: "Pancreatico enteric anastomosis", rate: 10000 },
+      { sNo: 953, dept: "Pediatric Surgery", name: "Colostomy / Ileostomy / Gastrostomy", rate: 2500 },
+      { sNo: 954, dept: "Pediatric Surgery", name: "Colostomy Closure / Ileostomy Closure", rate: 2500 },
+      { sNo: 956, dept: "Pediatric Surgery", name: "Exomphalos / Gastroschisis Repair", rate: 10000 },
+      { sNo: 957, dept: "Pediatric Surgery", name: "Silo reconstruction of Abdominal wall", rate: 10000 },
+      { sNo: 959, dept: "Pediatric Surgery", name: "Oesophageal Replacement", rate: 10000 },
+      { sNo: 960, dept: "Pediatric Surgery", name: "Excision of Abdominal / Retroperitoneal Mass", rate: 5000 },
+      { sNo: 961, dept: "Pediatric Surgery", name: "Ovarian / Pelvic Tumour", rate: 5000 },
+      { sNo: 962, dept: "Pediatric Surgery", name: "Diagnostic Laparoscopy", rate: 2500 },
+      { sNo: 963, dept: "Pediatric Surgery", name: "Laparoscopic Procedure - Major", rate: 10000 },
+      { sNo: 964, dept: "Pediatric Surgery", name: "Levelling Stoma for Hirschsprung Disease", rate: 2500 },
+      { sNo: 965, dept: "Pediatric Surgery", name: "Modified Duhamel Procedure/ Transanal Pull Through", rate: 5000 },
+      { sNo: 966, dept: "Pediatric Surgery", name: "Myectomy / Rectal Biopsy", rate: 1500 },
+      { sNo: 967, dept: "Pediatric Surgery", name: "Urethral Dilatation / Urethral Fistula Closure", rate: 1500 },
+      { sNo: 968, dept: "Pediatric Surgery", name: "Inguinal, Umbilical Herniotomy", rate: 3500 },
+      { sNo: 969, dept: "Pediatric Surgery", name: "Orchidopexy , open, unilateral", rate: 3500 },
+      { sNo: 970, dept: "Pediatric Surgery", name: "Orchidopexy , open, bilateral", rate: 5000 },
+      { sNo: 971, dept: "Pediatric Surgery", name: "Lap Staged Orchiopexy", rate: 3500 },
+      { sNo: 972, dept: "Pediatric Surgery", name: "Lap , single stage ,Orchiopexy", rate: 3500 },
+      { sNo: 973, dept: "Pediatric Surgery", name: "Exploration for torsion testis", rate: 2500 },
+      { sNo: 974, dept: "Pediatric Surgery", name: "Varicocele", rate: 3500 },
+      { sNo: 975, dept: "Pediatric Surgery", name: "Cystoscopy/ Retrograde pyelogram", rate: 1500 },
+      { sNo: 976, dept: "Pediatric Surgery", name: "Cystolithotomy / Ureterolithotomy", rate: 2500 },
+      { sNo: 977, dept: "Pediatric Surgery", name: "Urinary Diversion - Cutaneous Vesicostomy / Ureterostomy", rate: 2500 },
+      { sNo: 978, dept: "Pediatric Surgery", name: "Anterior Urethral Diverticulum /Valve", rate: 2500 },
+      { sNo: 979, dept: "Pediatric Surgery", name: "Urethroplasty for Proximal Hypospadias", rate: 5000 },
+      { sNo: 980, dept: "Pediatric Surgery", name: "Ureteric Reimplantation", rate: 5000 },
+      { sNo: 981, dept: "Pediatric Surgery", name: "Bladder neck repair", rate: 5000 },
+      { sNo: 982, dept: "Pediatric Surgery", name: "Surgery for Cloacal Exstrophy", rate: 7500 },
+      { sNo: 983, dept: "Pediatric Surgery", name: "Bladder augmentation", rate: 5000 },
+      { sNo: 984, dept: "Pediatric Surgery", name: "Mitrofanoff / MACE procedure", rate: 5000 },
+      { sNo: 985, dept: "Pediatric Surgery", name: "Feminizing genitoplasty", rate: 5000 },
+      { sNo: 996, dept: "Pediatric Surgery", name: "Craniosynostosis", rate: 5000 },
+      { sNo: 997, dept: "Pediatric Surgery", name: "Esophageal atresia+ TEF", rate: 10000 },
+      { sNo: 998, dept: "Pediatric Surgery", name: "Posterior urethral valve (PUV)", rate: 3500 },
+      { sNo: 999, dept: "Pediatric Surgery", name: "Pyeloplasty", rate: 5000 },
+      { sNo: 1000, dept: "Pediatric Surgery", name: "Posterior sagittal anorectoplasty (PSARP) / Abdomino-perineal PSARP", rate: 7500 },
+      { sNo: 1001, dept: "Pediatric Surgery", name: "Anoplasty", rate: 3500 },
+      { sNo: 1002, dept: "Pediatric Surgery", name: "Sacrococcygeal teratoma excision", rate: 7500 },
+      { sNo: 1003, dept: "Pediatric Surgery", name: "Anorectal-malformation-redo", rate: 2500 },
+      { sNo: 1005, dept: "Pediatric Surgery", name: "Replacement Vaginoplasty", rate: 5000 },
+      { sNo: 1010, dept: "Pediatric Surgery", name: "Diaphragmatic hernia", rate: 5000 },
+      { sNo: 1011, dept: "Pediatric Surgery", name: "Ureterocalicostomy", rate: 5000 },
+      { sNo: 1015, dept: "Pediatric Surgery", name: "PCNL", rate: 5000 },
+      { sNo: 1019, dept: "Pediatric Surgery", name: "Testis prosthesis implantation", rate: 2500 },
+      { sNo: 1020, dept: "Pediatric Surgery", name: "Phalloplasty", rate: 5000 },
+      { sNo: 1026, dept: "Pediatric Surgery", name: "Ureteroscopy+stone removal with lithotripsy", rate: 1500 },
+      { sNo: 1027, dept: "Pediatric Surgery", name: "Partial Cystectomy for haemangioma / rhabdomyosarcoma", rate: 5000 },
+      { sNo: 1028, dept: "Pediatric Surgery", name: "Radical cystectomy with neobladder-open, e.g., Gastric bladder", rate: 5000 },
+
+      // BURNS AND PLASTIC SURGERY (PDF 2: 38 to 116)
+      { sNo: 38, dept: "Burns and Plastic Surgery", name: "Pedicle Flap / Rotation flap", rate: 1500 },
+      { sNo: 41, dept: "Burns and Plastic Surgery", name: "Brachial Plexus exploration and nerve transfer", rate: 4000 },
+      { sNo: 43, dept: "Burns and Plastic Surgery", name: "Vascular Malformation (Small)", rate: 1000 },
+      { sNo: 44, dept: "Burns and Plastic Surgery", name: "Vascular Malformation (Large)", rate: 1500 },
+      { sNo: 45, dept: "Burns and Plastic Surgery", name: "Hypospadias/Epispadias/Preputial advancement and chordee correction", rate: 1000 },
+      { sNo: 46, dept: "Burns and Plastic Surgery", name: "Craniofacial Surgery", rate: 2500 },
+      { sNo: 49, dept: "Burns and Plastic Surgery", name: "Ear Reconstruction Stage-I", rate: 1500 },
+      { sNo: 50, dept: "Burns and Plastic Surgery", name: "Ear Reconstruction Stage-II", rate: 1500 },
+      { sNo: 51, dept: "Burns and Plastic Surgery", name: "Release of PBC by z plasty", rate: 500 },
+      { sNo: 52, dept: "Burns and Plastic Surgery", name: "Release of PBC hand & foot", rate: 1000 },
+      { sNo: 53, dept: "Burns and Plastic Surgery", name: "PBC Elbow axilla, knee", rate: 1500 },
+      { sNo: 54, dept: "Burns and Plastic Surgery", name: "Complex congenital hand", rate: 1500 },
+      { sNo: 59, dept: "Burns and Plastic Surgery", name: "Free Flap transfer", rate: 6000 },
+      { sNo: 60, dept: "Burns and Plastic Surgery", name: "Split skin Grafting (large)", rate: 1500 },
+      { sNo: 61, dept: "Burns and Plastic Surgery", name: "Split skin Grafting (small)", rate: 500 },
+      { sNo: 62, dept: "Burns and Plastic Surgery", name: "Full Thickness Skin Grafting", rate: 1000 },
+      { sNo: 65, dept: "Burns and Plastic Surgery", name: "Tendon Repair/grafting", rate: 1000 },
+      { sNo: 66, dept: "Burns and Plastic Surgery", name: "Peripheral Nerve Repair/grafting", rate: 1500 },
+      { sNo: 67, dept: "Burns and Plastic Surgery", name: "Tendon Transfer", rate: 1500 },
+      { sNo: 70, dept: "Burns and Plastic Surgery", name: "Skin Coverage Abdominal Flap", rate: 2500 },
+      { sNo: 74, dept: "Burns and Plastic Surgery", name: "Re-implantation Limb", rate: 5000 },
+      { sNo: 76, dept: "Burns and Plastic Surgery", name: "Cleft Lip(complete) repair Under GA", rate: 1500 },
+      { sNo: 77, dept: "Burns and Plastic Surgery", name: "Alveolar Bone Grafting For Cleft Palate Patients", rate: 1500 },
+      { sNo: 78, dept: "Burns and Plastic Surgery", name: "Cleft Palate repair Under GA", rate: 1500 },
+      { sNo: 88, dept: "Burns and Plastic Surgery", name: "Abbe estlander flap", rate: 1500 },
+      { sNo: 97, dept: "Burns and Plastic Surgery", name: "A-V Fistula creation", rate: 1000 },
+      { sNo: 98, dept: "Burns and Plastic Surgery", name: "Syndactyly", rate: 500 },
+      { sNo: 106, dept: "Burns and Plastic Surgery", name: "Dupuytren's contracture release", rate: 1000 },
+
+      // UROLOGY (PDF 2: 1250 to 1338)
+      { sNo: 1251, dept: "Urology", name: "End To End Urethroplasty", rate: 2000 },
+      { sNo: 1254, dept: "Urology", name: "Partial Nephrectomy - Urology", rate: 5000 },
+      { sNo: 1258, dept: "Urology", name: "Vesico Vaginal and other Uro-Genital Fistula Repair", rate: 1500 },
+      { sNo: 1261, dept: "Urology", name: "URSL (Ureterorenoscopy Lithotripsy)", rate: 1500 },
+      { sNo: 1263, dept: "Urology", name: "TURP (Transurethral Resection Of Prostate)", rate: 1500 },
+      { sNo: 1264, dept: "Urology", name: "Ureterocele Incision And Stone Removal", rate: 1000 },
+      { sNo: 1265, dept: "Urology", name: "Radical Nephrectomy", rate: 5000 },
+      { sNo: 1266, dept: "Urology", name: "Pyeloplasty", rate: 3000 },
+      { sNo: 1267, dept: "Urology", name: "Radical Cystectomy", rate: 7000 },
+      { sNo: 1269, dept: "Urology", name: "Ureteric Reimplantation", rate: 2000 },
+      { sNo: 1270, dept: "Urology", name: "Snodgrass Urethroplasty", rate: 1500 },
+      { sNo: 1271, dept: "Urology", name: "Subtrigonal Injection (STING)", rate: 1000 },
+      { sNo: 1274, dept: "Urology", name: "Urethroplasty For Penile Or Penoscrotal Type Hypospadias", rate: 2500 },
+      { sNo: 1276, dept: "Urology", name: "Primary Reconstruction For Extrophy Of Bladder", rate: 4000 },
+      { sNo: 1277, dept: "Urology", name: "Pyelolithotomy", rate: 3000 },
+      { sNo: 1278, dept: "Urology", name: "Bladder Diverticulectomy", rate: 3000 },
+      { sNo: 1279, dept: "Urology", name: "Boari Flap Reconstruction", rate: 3000 },
+      { sNo: 1284, dept: "Urology", name: "Augmentation Cystoplasty / Cystectomy - Uro", rate: 2500 },
+      { sNo: 1285, dept: "Urology", name: "Ureterolithotomy-Uro", rate: 2000 },
+      { sNo: 1288, dept: "Urology", name: "Radical Nephroureterectomy with Bladder cuff removal", rate: 4000 },
+      { sNo: 1292, dept: "Urology", name: "Simple Nephrectomy-Uro", rate: 3000 },
+      { sNo: 1293, dept: "Urology", name: "Endopyelotomy-Uro", rate: 1500 },
+      { sNo: 1295, dept: "Urology", name: "Orchiopexy-Uro", rate: 1000 },
+      { sNo: 1299, dept: "Urology", name: "Transurethral Resection Of Bladder Tumor (TURBT)", rate: 1500 },
+      { sNo: 1300, dept: "Urology", name: "DJ Stenting Under LA", rate: 500 },
+      { sNo: 1311, dept: "Urology", name: "DJ Stenting Under Anaesthesia", rate: 1000 },
+      { sNo: 1313, dept: "Urology", name: "CAPD Placement", rate: 1500 },
+      { sNo: 1316, dept: "Urology", name: "Extra Corporeal Shock Wave Lithotripsy (ESWL)", rate: 1500 },
+      { sNo: 1324, dept: "Urology", name: "RIRS (Retrograde Intrarenal Surgery)", rate: 2500 },
+      { sNo: 1326, dept: "Urology", name: "Fulguration of PUV", rate: 1000 },
+      { sNo: 1327, dept: "Urology", name: "Epispadias Repair", rate: 1500 },
+
+      // ENT / NEUROSURGERY (PDF 2)
+      { sNo: 276, dept: "E.N.T.-Otorhinolaryngology", name: "Thyroglossal Duct Excision", rate: 2500 },
+      { sNo: 294, dept: "E.N.T.-Otorhinolaryngology", name: "Slide Tracheoplasty", rate: 10000 },
+      { sNo: 610, dept: "Neurosurgery", name: "Cranial Meningoceles/ CSF leak Repair", rate: 4000 },
+      { sNo: 615, dept: "Neurosurgery", name: "Spinal Meningoceles", rate: 1000 },
+      { sNo: 621, dept: "Neurosurgery", name: "Closure Of Spinal Neural Tube Defect (Meningomyelocele)", rate: 1000 }
+    ];
+
+    // =========================================================================
+    // FULL COMPREHENSIVE AYUSHMAN BHARAT REIMBURSEMENT PACKAGES 
+    // =========================================================================
+    const ayushmanPackages = [
+      // Paediatric Surgery
+      {
+        dept: "Paediatric surgery",
+        level: "Tertiary",
+        code: "2841-SS031A",
+        name: "ESOPHAGEAL ATRESIA/TEF | PRIMARY REPAIR",
+        criteria: "Esophageal Atresia with/without Tracheoesophageal Fistula primary surgical repair [REGULAR PROCEDURE]",
+        rate: 65000,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Paediatric surgery",
+        level: "Tertiary",
+        code: "2841-PAES1660",
+        name: "Biliary Atresia – Kasai Portoenterostomy",
+        criteria: "Biliary Atresia – Kasai Portoenterostomy [REGULAR PKG]",
+        rate: 80000,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Paediatric surgery",
+        level: "Tertiary",
+        code: "2841-SS005A",
+        name: "Ladd's Procedure for Malrotation",
+        criteria: "MALROTATION | Ladd's procedure / volvulus untwisting [REGULAR PROCEDURE]",
+        rate: 39000,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Paediatric surgery",
+        level: "Tertiary",
+        code: "2841-SS014A",
+        name: "Exomphalos / Gastroschisis | Exomphalos",
+        criteria: "Exomphalos surgical reduction and abdominal wall closure [REGULAR PROCEDURE]",
+        rate: 30750,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Paediatric surgery",
+        level: "Tertiary",
+        code: "2841-SS014B",
+        name: "Exomphalos / Gastroschisis | Gastroschisis",
+        criteria: "Gastroschisis primary or staged silo repair [REGULAR PROCEDURE]",
+        rate: 30750,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Paediatric surgery",
+        level: "Secondary",
+        code: "1841-SS010D",
+        name: "Ano Rectal Malformation (ARM) | PSARP",
+        criteria: "Ano Rectal Malformation | Posterior Sagittal Anorectoplasty (PSARP) [REGULAR PROCEDURE]",
+        rate: 23870,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Paediatric surgery",
+        level: "Tertiary",
+        code: "2841-SS010A",
+        name: "Ano Rectal Malformation | Abd - Perineal PSARP",
+        criteria: "High ARM with abdominal mobilization and perineal reconstruction [REGULAR PROCEDURE]",
+        rate: 39100,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Paediatric surgery",
+        level: "Secondary",
+        code: "1841-SS008A",
+        name: "Hirschsprung’s Disease | Anorectal Myectomy",
+        criteria: "Surgery for Hirschsprung’s Disease | Myectomy [REGULAR PROCEDURE]",
+        rate: 25000,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Paediatric surgery",
+        level: "Secondary",
+        code: "1841-SS008B",
+        name: "Hirschsprung’s Disease | Definitive Pull Through",
+        criteria: "Transanal / Duhamel / Soave endorectal pull through [REGULAR PROCEDURE]",
+        rate: 22880,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Paediatric surgery",
+        level: "Tertiary",
+        code: "2841-SS013A",
+        name: "Congenital Diaphragmatic Hernia / Eventration",
+        criteria: "Congenital Diaphragmatic Hernia - Govt reserved | Repair [REGULAR PROCEDURE]",
+        rate: 34700,
+        govtReserved: true,
+        implants: ""
+      },
+      {
+        dept: "Paediatric surgery",
+        level: "Tertiary",
+        code: "2841-SG009A",
+        name: "Infantile Pyloromyotomy (IHPS)",
+        criteria: "Pyloromyotomy | Ramstedt Pyloromyotomy [REGULAR PROCEDURE]",
+        rate: 27800,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Paediatric surgery",
+        level: "Tertiary",
+        code: "2841-SG041A",
+        name: "Choledochal Cyst Excision with Hepaticojejunostomy",
+        criteria: "Operation of Choledochal Cyst [REGULAR PROCEDURE]",
+        rate: 30400,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Paediatric surgery",
+        level: "Secondary",
+        code: "1841-SS015A",
+        name: "Pediatric Inguinal Hernia & Hydrocele",
+        criteria: "Hernia & Hydrocele - Govt reserved | Herniotomy [REGULAR PROCEDURE]",
+        rate: 11000,
+        govtReserved: true,
+        implants: ""
+      },
+      {
+        dept: "Paediatric surgery",
+        level: "Secondary",
+        code: "1841-SS017A",
+        name: "Sacrococcygeal Teratoma (SCT) Excision",
+        criteria: "Surgery for Sacrococcygeal Teratoma [REGULAR PROCEDURE]",
+        rate: 22880,
+        govtReserved: false,
+        implants: ""
+      },
+
+      // Urology / Pediatric Urology
+      {
+        dept: "Urology",
+        level: "Tertiary",
+        code: "2846-SU071A",
+        name: "Hypospadias Repair - Single Stage",
+        criteria: "Hypospadias repair - govt reserve | Single stage [REGULAR PROCEDURE]",
+        rate: 30800,
+        govtReserved: true,
+        implants: ""
+      },
+      {
+        dept: "Urology",
+        level: "Secondary",
+        code: "1846-SU071D",
+        name: "Hypospadias Repair - Final Stage / Fistula Repair",
+        criteria: "Two or more stage (Final Stage)/Fistula repair - Govt reserve [REGULAR PROCEDURE]",
+        rate: 20000,
+        govtReserved: true,
+        implants: ""
+      },
+      {
+        dept: "Urology",
+        level: "Secondary",
+        code: "1846-SU071B",
+        name: "Hypospadias Repair - First Stage",
+        criteria: "Two or more stage (First Stage) - Govt reserve [REGULAR PROCEDURE]",
+        rate: 14850,
+        govtReserved: true,
+        implants: ""
+      },
+      {
+        dept: "Urology",
+        level: "Secondary",
+        code: "1846-SS019A",
+        name: "Undescended Testis - Bilateral Palpable + Nonpalpable",
+        criteria: "Undescended Testis - Govt reserved [REGULAR PROCEDURE]",
+        rate: 15000,
+        govtReserved: true,
+        implants: ""
+      },
+      {
+        dept: "Urology",
+        level: "Secondary",
+        code: "1846-SU088B",
+        name: "Orchiopexy without laparoscopy - Unilateral (U/L)",
+        criteria: "Orchiopexy - Govt Reserve | U/L [REGULAR PROCEDURE]",
+        rate: 15000,
+        govtReserved: true,
+        implants: ""
+      },
+      {
+        dept: "Urology",
+        level: "Secondary",
+        code: "1846-SU088C",
+        name: "Orchiopexy without laparoscopy - Bilateral (B/L)",
+        criteria: "Orchiopexy - Govt Reserve | B/L [REGULAR PROCEDURE]",
+        rate: 16500,
+        govtReserved: true,
+        implants: ""
+      },
+      {
+        dept: "Urology",
+        level: "Tertiary",
+        code: "2846-SU088A",
+        name: "Laparoscopic Orchiopexy",
+        criteria: "Orchiopexy with laparoscopy - Govt Reserve [U/L: 30000 ; B/L: 35000]",
+        rate: 30000,
+        govtReserved: true,
+        implants: "Tiered rate: U/L - ₹30,000 ; B/L - ₹35,000"
+      },
+      {
+        dept: "Urology",
+        level: "Tertiary",
+        code: "2846-SU021A",
+        name: "Pyeloplasty - Open (Anderson-Hynes)",
+        criteria: "Pyeloplasty / Pyeloureterostomy - Open [REGULAR PROCEDURE]",
+        rate: 30400,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Urology",
+        level: "Tertiary",
+        code: "2846-SU021B",
+        name: "Pyeloplasty - Laparoscopic",
+        criteria: "Pyeloplasty / Pyeloureterostomy - Laparoscopic [REGULAR PROCEDURE]",
+        rate: 30400,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Urology",
+        level: "Tertiary",
+        code: "2846-SU030A",
+        name: "Ureteric Reimplantation - Open (U/L or B/L)",
+        criteria: "Ureteric reimplantation - Open (U/L: ₹25,500 ; B/L: ₹38,500)",
+        rate: 25500,
+        govtReserved: false,
+        implants: "Tiered rate: U/L - ₹25,500 ; B/L - ₹38,500"
+      },
+      {
+        dept: "Urology",
+        level: "Secondary",
+        code: "1846-SU070A",
+        name: "Posterior Urethral Valve (PUV) Fulguration",
+        criteria: "Post. Urethral Valve fulguration [REGULAR PROCEDURE]",
+        rate: 14000,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Urology",
+        level: "Tertiary",
+        code: "2846-SU051A",
+        name: "Bladder Exstrophy Repair + Epispadias",
+        criteria: "Extrophy Bladder repair including osteotomy if needed + epispadias + ureteric reimplant [Govt Reserve]",
+        rate: 78200,
+        govtReserved: true,
+        implants: ""
+      },
+      {
+        dept: "Urology",
+        level: "Tertiary",
+        code: "2846-SU033A",
+        name: "DJ Stenting (Cystoscopy, Retrograde)",
+        criteria: "DJ stenting stand alone [REGULAR PROCEDURE]",
+        rate: 10000,
+        govtReserved: false,
+        implants: "DJ STENT: ₹200"
+      },
+      {
+        dept: "Urology",
+        level: "Secondary",
+        code: "1841-SG104A",
+        name: "Circumcision (Phimosis / Paraphimosis)",
+        criteria: "Circumcision - Govt Reserved [REGULAR PROCEDURE]",
+        rate: 3000,
+        govtReserved: true,
+        implants: ""
+      },
+
+      // General Surgery
+      {
+        dept: "General Surgery",
+        level: "Secondary",
+        code: "1835-SG017B",
+        name: "Appendicectomy - Laparoscopic",
+        criteria: "Appendicectomy | Lap-Appendicectomy [REGULAR PROCEDURE]",
+        rate: 15600,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "General Surgery",
+        level: "Secondary",
+        code: "1835-SG017A",
+        name: "Appendicectomy - Open",
+        criteria: "Appendicectomy | Appendicectomy-Open [REGULAR PROCEDURE]",
+        rate: 18000,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "General Surgery",
+        level: "Secondary",
+        code: "1835-SG023A",
+        name: "Colostomy - Stand Alone",
+        criteria: "Colostomy | Colostomy-Stand alone [STAND-ALONE]",
+        rate: 16500,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "General Surgery",
+        level: "Secondary",
+        code: "1835-SG013A",
+        name: "Ileostomy - Stand Alone",
+        criteria: "Ileostomy | Ileostomy-Stand alone [STAND-ALONE]",
+        rate: 14300,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "General Surgery",
+        level: "Secondary",
+        code: "1835-SG024A",
+        name: "Closure of Stoma (Colostomy / Ileostomy)",
+        criteria: "Closure of stoma [REGULAR PROCEDURE]",
+        rate: 15950,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "General Surgery",
+        level: "Tertiary",
+        code: "2835-SG030A",
+        name: "Bowel Resection & Anastomosis - Open",
+        criteria: "Resection Anastomosis - Open [REGULAR PROCEDURE]",
+        rate: 25000,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "General Surgery",
+        level: "Tertiary",
+        code: "2835-SG051B",
+        name: "Umbilical Hernia Repair",
+        criteria: "Hernia - Ventral | Umbilical [REGULAR PROCEDURE]",
+        rate: 22400,
+        govtReserved: false,
+        implants: "Mesh - 15 x 15 (Rate: 2000)"
+      },
+      {
+        dept: "General Surgery",
+        level: "Tertiary",
+        code: "2835-SG052A",
+        name: "Repair of Incisional Hernia (Lap / Open)",
+        criteria: "Repair of Incisional Hernia Lap/Open [REGULAR PROCEDURE]",
+        rate: 20000,
+        govtReserved: false,
+        implants: "Mesh 30x30: 10000 ; Mesh 15x15: 2000"
+      },
+      {
+        dept: "General Surgery",
+        level: "Secondary",
+        code: "1835-SG036A",
+        name: "Closure of Burst Abdomen",
+        criteria: "Closure of Burst Abdomen [REGULAR PROCEDURE]",
+        rate: 15000,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "General Surgery",
+        level: "Tertiary",
+        code: "2835-SG004A",
+        name: "Operative Gastrostomy",
+        criteria: "Operative Gastrostomy [REGULAR PROCEDURE]",
+        rate: 20000,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "General Surgery",
+        level: "Tertiary",
+        code: "2835-SG042A",
+        name: "Splenectomy - Open",
+        criteria: "Splenectomy- Open [REGULAR PROCEDURE]",
+        rate: 25000,
+        govtReserved: false,
+        implants: ""
+      },
+
+      // Plastic & Burns
+      {
+        dept: "Plastic & reconstructive Surgery",
+        level: "Secondary",
+        code: "1843-SS001A",
+        name: "Cleft Lip and Palate Surgery (Per Stage)",
+        criteria: "Cleft Lip and Palate Surgery (per stage) [REGULAR PROCEDURE]",
+        rate: 16500,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Plastic & reconstructive Surgery",
+        level: "Tertiary",
+        code: "2843-SP004B",
+        name: "Microtia / Ear Pinna Reconstruction with Costal Cartilage",
+        criteria: "Ear Pinna Reconstruction with costal cartilage (Stage-1: 35000, Subsequent: 20000)",
+        rate: 35000,
+        govtReserved: false,
+        implants: "Cartilage: ₹75,000 | Implant: ₹80,000"
+      },
+      {
+        dept: "Plastic & reconstructive Surgery",
+        level: "Secondary",
+        code: "1843-SP007A",
+        name: "Hemangioma - Sclerotherapy under GA",
+        criteria: "Hemangioma - Govt reserved | Sclerotherapy under GA [REGULAR PROCEDURE]",
+        rate: 15000,
+        govtReserved: true,
+        implants: ""
+      },
+      {
+        dept: "Burns Management",
+        level: "Tertiary",
+        code: "2847-BM006A",
+        name: "Post Burn Contracture Surgeries (Joints / Functional)",
+        criteria: "Contracture release with STSG / FTSG / Flap cover per joint (Excluding Neck) + splints, garments",
+        rate: 45000,
+        govtReserved: false,
+        implants: "Includes splints, pressure garments & silicone gel sheet"
+      },
+
+      // Oncology / Access
+      {
+        dept: "Interventional Radiology",
+        level: "Tertiary",
+        code: "2849-SC076A",
+        name: "Chemo Port Insertion (Pediatric / Adult)",
+        criteria: "Chemo Port Insertion | Chemo Port under fluoroscopy [REGULAR PROCEDURE]",
+        rate: 11000,
+        govtReserved: false,
+        implants: "CHEMO PORT - PEDIATRIC: ₹15,000 MAX: 1"
+      },
+      {
+        dept: "Surgical Oncology",
+        level: "Tertiary",
+        code: "2845-SC021A",
+        name: "Wilms Tumor: Surgery / Radical Nephrectomy",
+        criteria: "Wilms tumors: surgery [REGULAR PROCEDURE]",
+        rate: 39100,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Surgical Oncology",
+        level: "Tertiary",
+        code: "2845-SC063A",
+        name: "Neuroblastoma Excision",
+        criteria: "Neuroblastoma Excision [REGULAR PROCEDURE]",
+        rate: 39100,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Surgical Oncology",
+        level: "Tertiary",
+        code: "2845-SC018A",
+        name: "Hepatoblastoma Excision / Liver Resection",
+        criteria: "Hepatoblastoma Excision [REGULAR PROCEDURE]",
+        rate: 59100,
+        govtReserved: false,
+        implants: ""
+      },
+
+      // Neurosurgery
+      {
+        dept: "Neurosurgery",
+        level: "Tertiary",
+        code: "2837-SN005B",
+        name: "Spina Bifida Cystica / Myelomeningocele Repair",
+        criteria: "Meningocele | Surgery for spina bifida cystica/occulta [REGULAR PROCEDURE]",
+        rate: 37500,
+        govtReserved: false,
+        implants: "Exogenous graft: ₹4,000 ; Fibrin glue: ₹9,000"
+      },
+      {
+        dept: "Neurosurgery",
+        level: "Tertiary",
+        code: "2837-SN022A",
+        name: "Ventriculo-Peritoneal (VP) Shunt Surgery",
+        criteria: "Shunt Surgery | Ventriculo-Peritoneal Shunt (Low/Med/High pressure) [REGULAR PROCEDURE]",
+        rate: 33000,
+        govtReserved: false,
+        implants: ""
+      },
+      {
+        dept: "Neurosurgery",
+        level: "Tertiary",
+        code: "2837-SN004A",
+        name: "Craniosynostosis - Cranial Vault Remodeling",
+        criteria: "Craniostenosis | Cranial vault remodeling/ surgery for Craniosynostosis [REGULAR PROCEDURE]",
+        rate: 32000,
+        govtReserved: false,
+        implants: "Mini Plate: ₹3,000 (Max: 4)"
+      }
+    ];
+
+    // Current State
+    let activeMode = "hospital"; // 'hospital' or 'ayushman'
+    let cartItems = [];
+    let ayushGovOnly = false;
+    let ayushTertiaryOnly = false;
+
+    function setMode(mode) {
+      activeMode = mode;
+      const tabHosp = document.getElementById("tab-hosp");
+      const tabAyush = document.getElementById("tab-ayush");
+      const secHosp = document.getElementById("section-hospital");
+      const secAyush = document.getElementById("section-ayushman");
+      const explainer = document.getElementById("mode-explainer");
+      const drawerLabel = document.getElementById("drawer-btn-label");
+      const worksheetHeader = document.getElementById("worksheet-header");
+
+      if (mode === "hospital") {
+        tabHosp.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-xs md:text-sm font-bold transition shadow-sm bg-emerald-600 text-white";
+        tabAyush.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-xs md:text-sm font-bold transition text-slate-300 hover:text-white";
+        secHosp.classList.remove("hidden");
+        secAyush.classList.add("hidden");
+        explainer.className = "bg-emerald-800 text-emerald-100 text-xs py-1.5 px-4 text-center font-medium border-t border-emerald-700";
+        explainer.innerHTML = `Viewing: <strong>Hospital Schedule of User Charges </strong> `;
+        drawerLabel.innerText = "Hospital Bill Slip";
+        worksheetHeader.innerText = "Hospital Tariff Worksheet";
+        filterHospital();
+      } else {
+        tabAyush.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-xs md:text-sm font-bold transition shadow-sm bg-indigo-600 text-white";
+        tabHosp.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-xs md:text-sm font-bold transition text-slate-300 hover:text-white";
+        secHosp.classList.add("hidden");
+        secAyush.classList.remove("hidden");
+        explainer.className = "bg-indigo-900 text-indigo-100 text-xs py-1.5 px-4 text-center font-medium border-t border-indigo-800";
+        explainer.innerHTML = `Viewing: <strong>Ayushman Bharat Package </strong> `;
+        drawerLabel.innerText = "Ayushman Claim Sheet";
+        worksheetHeader.innerText = "Ayushman Reimbursement Sheet";
+        filterAyushman();
+      }
+    }
+
+    // ==========================================
+    // HOSPITAL VIEW LOGIC
+    // ==========================================
+    function filterHospital() {
+      const q = document.getElementById("hosp-search").value.toLowerCase().trim();
+      const dept = document.getElementById("hosp-dept-select").value;
+      const sort = document.getElementById("hosp-sort").value;
+
+      let list = hospitalProcedures.filter(item => {
+        const matchesQ = !q || item.name.toLowerCase().includes(q) || item.dept.toLowerCase().includes(q) || String(item.sNo).includes(q);
+        const matchesDept = (dept === "all") || (item.dept === dept);
+        return matchesQ && matchesDept;
+      });
+
+      if (sort === "low-high") list.sort((a,b) => a.rate - b.rate);
+      if (sort === "high-low") list.sort((a,b) => b.rate - a.rate);
+      if (sort === "sNo") list.sort((a,b) => a.sNo - b.sNo);
+
+      renderHospitalGrid(list);
+    }
+
+    function renderHospitalGrid(list) {
+      const grid = document.getElementById("hosp-grid");
+      document.getElementById("hosp-count").innerText = list.length;
+
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-14 text-center bg-white rounded-xl border border-dashed border-slate-300">
+            <i data-lucide="search-x" class="w-10 h-10 mx-auto text-slate-300 mb-2"></i>
+            <h3 class="text-sm font-bold text-slate-700">No procedure found</h3>
+            <p class="text-xs text-slate-400 mt-1">Try another search keyword (e.g. "TAPP", "Hernia", "TEF")</p>
+          </div>`;
+        lucide.createIcons();
+        return;
+      }
+
+      grid.innerHTML = list.map(item => `
+        <div class="bg-white rounded-xl border border-slate-200 hover:border-emerald-500 hover:shadow-md transition p-3.5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-1.5 mb-1.5">
+              <span class="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                S.No #${item.sNo}
+              </span>
+              <span class="text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded">
+                ${item.dept}
+              </span>
+            </div>
+
+            <h3 class="text-sm font-bold text-slate-900 leading-snug">
+              ${item.name}
+            </h3>
+            <p class="text-[11px] text-slate-400 mt-1">Institutional Fee Schedule (Actual Charge)</p>
+          </div>
+
+          <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-400">Hospital Rate</span>
+              <span class="text-base font-black text-emerald-700 block">₹${item.rate.toLocaleString('en-IN')}</span>
+            </div>
+            <button 
+              onclick="addHospitalItem(${item.sNo})"
+              class="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-lg border border-emerald-200 transition"
+            >
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add to Bill
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    function setHospKeyword(term) {
+      document.getElementById("hosp-search").value = term;
+      filterHospital();
+    }
+
+    function clearHospSearch() {
+      document.getElementById("hosp-search").value = "";
+      filterHospital();
+    }
+
+    // ==========================================
+    // AYUSHMAN VIEW LOGIC
+    // ==========================================
+    function filterAyushman() {
+      const q = document.getElementById("ayush-search").value.toLowerCase().trim();
+      const dept = document.getElementById("ayush-dept-select").value;
+      const sort = document.getElementById("ayush-sort").value;
+
+      let list = ayushmanPackages.filter(item => {
+        const matchesQ = !q || 
+          item.name.toLowerCase().includes(q) || 
+          item.code.toLowerCase().includes(q) || 
+          item.criteria.toLowerCase().includes(q) ||
+          item.dept.toLowerCase().includes(q);
+
+        const matchesDept = (dept === "all") || (item.dept === dept);
+        const matchesGov = !ayushGovOnly || item.govtReserved === true;
+        const matchesTert = !ayushTertiaryOnly || item.level === "Tertiary";
+
+        return matchesQ && matchesDept && matchesGov && matchesTert;
+      });
+
+      if (sort === "low-high") list.sort((a,b) => a.rate - b.rate);
+      if (sort === "high-low") list.sort((a,b) => b.rate - a.rate);
+
+      renderAyushmanGrid(list);
+    }
+
+    function renderAyushmanGrid(list) {
+      const grid = document.getElementById("ayush-grid");
+      document.getElementById("ayush-count").innerText = list.length;
+
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-14 text-center bg-white rounded-xl border border-dashed border-slate-300">
+            <i data-lucide="search-x" class="w-10 h-10 mx-auto text-slate-300 mb-2"></i>
+            <h3 class="text-sm font-bold text-slate-700">No Ayushman package found</h3>
+            <p class="text-xs text-slate-400 mt-1">Try another keyword or reset filters</p>
+          </div>`;
+        lucide.createIcons();
+        return;
+      }
+
+      grid.innerHTML = list.map(item => `
+        <div class="bg-white rounded-xl border border-slate-200 hover:border-indigo-500 hover:shadow-md transition p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                ${item.dept}
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded ${item.level === 'Tertiary' ? 'badge-tertiary' : 'badge-secondary'}">
+                ${item.level}
+              </span>
+              ${item.govtReserved ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded badge-gov">Govt Reserved</span>` : ''}
+            </div>
+
+            <h3 class="text-sm font-bold text-slate-900 leading-snug">
+              ${item.name}
+            </h3>
+
+            <p class="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">
+              ${item.criteria}
+            </p>
+
+            <div class="mt-2.5 flex items-center gap-2">
+              <span class="text-[10px] uppercase font-bold text-slate-400">Package Code:</span>
+              <code onclick="copyText('${item.code}')" class="bg-slate-100 hover:bg-indigo-100 text-indigo-950 font-mono font-bold text-xs px-2 py-1 rounded cursor-pointer transition flex items-center gap-1">
+                ${item.code}
+                <i data-lucide="copy" class="w-3 h-3 text-slate-400"></i>
+              </code>
+            </div>
+
+            ${item.implants ? `
+              <div class="mt-2 text-[11px] bg-amber-50 text-amber-900 border border-amber-200 p-1.5 rounded">
+                <strong>Implant Limits:</strong> ${item.implants}
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-400">Claim Refund Rate</span>
+              <span class="text-base font-black text-indigo-900 block">₹${item.rate.toLocaleString('en-IN')}</span>
+            </div>
+            <button 
+              onclick="addAyushmanItem('${item.code}')"
+              class="flex items-center gap-1 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-indigo-200 transition"
+            >
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add to Claim
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    function setAyushKeyword(term) {
+      document.getElementById("ayush-search").value = term;
+      filterAyushman();
+    }
+
+    function clearAyushSearch() {
+      document.getElementById("ayush-search").value = "";
+      filterAyushman();
+    }
+
+    function toggleGovtReservedOnly() {
+      ayushGovOnly = !ayushGovOnly;
+      const btn = document.getElementById("gov-filter-btn");
+      if (ayushGovOnly) {
+        btn.classList.add("bg-amber-600", "text-white");
+        btn.classList.remove("bg-amber-50", "text-amber-800");
+      } else {
+        btn.classList.remove("bg-amber-600", "text-white");
+        btn.classList.add("bg-amber-50", "text-amber-800");
+      }
+      filterAyushman();
+    }
+
+    function toggleTertiaryOnly() {
+      ayushTertiaryOnly = !ayushTertiaryOnly;
+      const btn = document.getElementById("tert-filter-btn");
+      if (ayushTertiaryOnly) {
+        btn.classList.add("bg-purple-600", "text-white");
+        btn.classList.remove("bg-purple-50", "text-purple-800");
+      } else {
+        btn.classList.remove("bg-purple-600", "text-white");
+        btn.classList.add("bg-purple-50", "text-purple-800");
+      }
+      filterAyushman();
+    }
+
+    // ==========================================
+    // WORKSHEET / CART LOGIC
+    // ==========================================
+    function toggleDrawer() {
+      document.getElementById("worksheet-drawer").classList.toggle("translate-x-full");
+    }
+
+    function addHospitalItem(sNo) {
+      const it = hospitalProcedures.find(x => x.sNo === sNo);
+      if (!it) return;
+      cartItems.push({
+        type: "Hospital User Charge",
+        id: `HOSP #${it.sNo}`,
+        name: it.name,
+        dept: it.dept,
+        rate: it.rate
+      });
+      updateCartUI();
+      showToast(`Added: ${it.name.substring(0, 20)}...`);
+    }
+
+    function addAyushmanItem(code) {
+      const it = ayushmanPackages.find(x => x.code === code);
+      if (!it) return;
+      cartItems.push({
+        type: "Ayushman Claim",
+        id: it.code,
+        name: it.name,
+        dept: it.dept,
+        rate: it.rate
+      });
+      updateCartUI();
+      showToast(`Added: [${it.code}]`);
+    }
+
+    function removeFromCart(index) {
+      cartItems.splice(index, 1);
+      updateCartUI();
+    }
+
+    function clearCart() {
+      cartItems = [];
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      document.getElementById("cart-counter").innerText = cartItems.length;
+      const list = document.getElementById("cart-list");
+
+      if (cartItems.length === 0) {
+        list.innerHTML = `
+          <div class="text-center text-slate-400 text-xs mt-16">
+            <i data-lucide="clipboard" class="w-10 h-10 mx-auto stroke-1 text-slate-300 mb-2"></i>
+            Worksheet is currently empty.<br>Click "Add" on any procedure.
+          </div>`;
+        document.getElementById("cart-total-amount").innerText = "₹0";
+        lucide.createIcons();
+        return;
+      }
+
+      let total = 0;
+      list.innerHTML = cartItems.map((item, idx) => {
+        total += item.rate;
+        const isHosp = item.type === "Hospital User Charge";
+        return `
+          <div class="bg-white border border-slate-200 rounded-lg p-3 text-xs flex items-start justify-between gap-2 shadow-sm">
+            <div>
+              <div class="flex items-center gap-1.5 mb-1">
+                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded ${isHosp ? 'bg-emerald-100 text-emerald-800' : 'bg-indigo-100 text-indigo-800'}">
+                  ${item.type}
+                </span>
+                <span class="text-[10px] text-slate-400 font-mono">${item.id}</span>
+              </div>
+              <div class="font-bold text-slate-800">${item.name}</div>
+              <div class="text-[11px] font-black text-slate-900 mt-1">₹${item.rate.toLocaleString('en-IN')}</div>
+            </div>
+            <button onclick="removeFromCart(${idx})" class="text-slate-400 hover:text-rose-600 p-1">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>`;
+      }).join('');
+
+      document.getElementById("cart-total-amount").innerText = `₹${total.toLocaleString('en-IN')}`;
+      lucide.createIcons();
+    }
+
+    function copyWorksheet() {
+      if (cartItems.length === 0) {
+        alert("Cart is empty.");
+        return;
+      }
+      let total = 0;
+      let text = "PATIENT PROCEDURE / SURGICAL BILLING SHEET\n";
+      text += "=================================================\n";
+      cartItems.forEach((it, i) => {
+        total += it.rate;
+        text += `${i+1}. [${it.type}] ${it.name}\n   ID/Code: ${it.id} | Dept: ${it.dept}\n   Amount: ₹${it.rate.toLocaleString('en-IN')}\n\n`;
+      });
+      text += "=================================================\n";
+      text += `TOTAL ESTIMATE: ₹${total.toLocaleString('en-IN')}\n`;
+      navigator.clipboard.writeText(text);
+      showToast("Worksheet text copied to clipboard!");
+    }
+
+    function copyText(str) {
+      navigator.clipboard.writeText(str);
+      showToast(`Copied: ${str}`);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      document.getElementById("toast-text").innerText = msg;
+      toast.classList.remove("translate-y-20", "opacity-0");
+      setTimeout(() => {
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 2000);
+    }
+
+    // Modal
+    function openImportModal() { document.getElementById("import-modal").classList.remove("hidden"); }
+    function closeImportModal() { document.getElementById("import-modal").classList.add("hidden"); }
+
+    window.onload = () => {
+      setMode("hospital"); // Default to hospital tariff schedule
+    };
+  </script>
+</body>
+</html>
